@@ -1,20 +1,13 @@
-package com.devops.myapp;
+package com.deveops.myapp;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootApplication
-@RestController
-public class MyappApplication {
+@SpringBootTest
+class MyappApplicationTests {
 
-    public static void main(String[] args) {
-        SpringApplication.run(MyappApplication.class, args);
+    @Test
+    void contextLoads() {
     }
 
-    @GetMapping("/")
-    public String home() {
-        return "Hello from DevOps Project! CI/CD Pipeline is working!";
-    }
 }
