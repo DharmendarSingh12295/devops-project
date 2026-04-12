@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps Worksheet Generator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f6f9; color: #1a1a2e; min-height: 100vh; }
+
+    .navbar {
+      background: #1F4E79;
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar h1 { font-size: 18px; font-weight: 600; }
+    .navbar span { font-size: 12px; opacity: 0.75; }
+    .pipeline-bar {
+      background: #16344f;
+      color: #7fc8f8;
+      font-size: 12px;
+      text-align: center;
+      padding: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .container { max-width: 860px; margin: 2rem auto; padding: 0 16px; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 1rem; color: #1F4E79; }
+
+    .ctrl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+    .ctrl-item { display: flex; flex-direction: column; gap: 6px; }
+    .ctrl-item label { font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type=number], input[type=text] {
+      padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px;
+      font-size: 13px; width: 100%; outline: none; color: #1a1a2e;
+    }
+    input:focus { border-color: #1F4E79; }
+
+    .subject-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
+    .sub-btn {
+      padding: 8px 10px; font-size: 12px; border-radius: 8px;
+      border: 1px solid #ddd; background: white; color: #444;
+      cursor: pointer; text-align: center; transition: all 0.15s;
+    }
+    .sub-btn.sel { background: #EBF3FB; color: #0C447C; border-color: #85B7EB; font-weight: 600; }
+
+    .gen-btn {
+      width: 100%; padding: 12px; font-size: 15px; font-weight: 600;
+      background: #1F4E79; color: white; border: none;
+      border-radius: 8px; cursor: pointer; transition: background 0.15s;
+    }
+    .gen-btn:hover { background: #185FA5; }
+    .gen-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+    .ws-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem; padding-bottom: 1rem;
+      border-bottom: 2px solid #1F4E79;
+    }
+    .ws-title { font-size: 18px; font-weight: 700; color: #1F4E79; }
+    .ws-meta { font-size: 12px; color: #888; margin-top: 4px; }
+
+    .action-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+    .action-btn {
+      padding: 6px 14px; font-size: 12px; border-radius: 8px;
+      border: 1px solid #ddd; background: white; color: #444;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .action-btn:hover { background: #f0f0f0; }
+    .print-btn { background: #1F4E79; color: white; border-color: #1F4E79; }
+    .print-btn:hover { background: #185FA5; }
+
+    .q-block {
+      margin-bottom: 1.5rem; padding-bottom: 1.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    .q-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .q-num {
+      background: #1F4E79; color: white;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .subject-tag {
+      font-size: 11px; padding: 2px 10px; border-radius: 10px;
+      background: #EBF3FB; color: #0C447C; font-weight: 600;
+    }
+    .q-text { font-size: 14px; line-height: 1.75; color: #1a1a2e; margin-bottom: 10px; padding-left: 38px; }
+
+    .sol-btn {
+      margin-left: 38px; padding: 5px 14px; font-size: 12px;
+      border-radius: 8px; border: 1px solid #ddd;
+      background: white; color: #444; cursor: pointer;
+    }
+    .sol-btn:hover { background: #f5f5f5; }
+
+    .sol-box {
+      margin-top: 10px; margin-left: 38px;
+      background: #f0faf4; border: 1px solid #b7dfc5;
+      border-radius: 8px; padding: 14px;
+    }
+    .sol-label { font-size: 11px; font-weight: 700; color: #27500A; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sol-text { font-size: 13px; line-height: 1.9; color: #1a1a2e; white-space: pre-wrap; }
+
+    .loading { text-align: center; padding: 3rem; color: #888; }
+    .spinner {
+      width: 32px; height: 32px; border: 3px solid #eee;
+      border-top-color: #1F4E79; border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error { color: #c00; font-size: 13px; text-align: center; padding: 1rem; }
+
+    .footer {
+      text-align: center; padding: 2rem; font-size: 12px; color: #999;
+      border-top: 1px solid #eee; margin-top: 2rem;
+    }
+
+    @media print {
+      .navbar, .pipeline-bar, .card:first-child, .action-bar, .sol-btn, .footer { display: none !important; }
+      .sol-box { display: block !important; }
+      body { background: white; }
+      .card { border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>DevOps Worksheet Generator</h1>
+  <span>Deployed via CI/CD Pipeline</span>
+</div>
+<div class="pipeline-bar">
+  GitHub &rarr; Jenkins &rarr; Docker &rarr; AWS EC2
+</div>
+
+<div class="container">
+
+  <!-- Controls Card -->
+  <div class="card">
+    <h2>Configure Your Worksheet</h2>
+    <div class="ctrl-grid">
+      <div class="ctrl-item">
+        <label>Number of Questions</label>
+        <input type="number" id="qcount" value="5" min="3" max="10">
+      </div>
+      <div class="ctrl-item">
+        <label>Worksheet Title</label>
+        <input type="text" id="wtitle" placeholder="e.g. Unit 3 Practice Test">
+      </div>
+    </div>
+
+    <label style="font-size:12px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:8px">Select Subjects</label>
+    <div class="subject-grid">
+      <div class="sub-btn sel" onclick="toggleSub(this,'Mathematics')">Mathematics</div>
+      <div class="sub-btn" onclick="toggleSub(this,'Physics')">Physics</div>
+      <div class="sub-btn" onclick="toggleSub(this,'Chemistry')">Chemistry</div>
+      <div class="sub-btn" onclick="toggleSub(this,'Computer Science')">Computer Science</div>
+      <div class="sub-btn" onclick="toggleSub(this,'Data Structures')">Data Structures</div>
+      <div class="sub-btn" onclick="toggleSub(this,'Electronics')">Electronics</div>
+      <div class="sub-btn" onclick="toggleSub(this,'Calculus')">Calculus</div>
+      <div class="sub-btn" onclick="toggleSub(this,'Probability & Stats')">Probability &amp; Stats</div>
+      <div class="sub-btn" onclick="toggleSub(this,'Operating Systems')">Operating Systems</div>
+    </div>
+
+    <button class="gen-btn" id="gen-btn" onclick="generate()">Generate Worksheet</button>
+  </div>
+
+  <!-- Output Card -->
+  <div class="card" id="ws-out" style="display:none"></div>
+
+  <div class="footer">
+    DevOps Worksheet Generator &bull; Built with Spring Boot &bull; Deployed via GitHub &rarr; Jenkins &rarr; Docker &rarr; AWS EC2
+  </div>
+</div>
+
+<script>
+  const API_KEY = 'YOUR_ANTHROPIC_API_KEY_HERE';
+  let selected = new Set(['Mathematics']);
+
+  function toggleSub(el, name) {
+    if (selected.has(name)) {
+      if (selected.size === 1) return;
+      selected.delete(name);
+      el.classList.remove('sel');
+    } else {
+      selected.add(name);
+      el.classList.add('sel');
+    }
+  }
+
+  async function generate() {
+    const n = Math.min(10, Math.max(3, parseInt(document.getElementById('qcount').value) || 5));
+    const title = document.getElementById('wtitle').value.trim() || 'Mixed Subject Practice Worksheet';
+    const subs = [...selected].join(', ');
+    const btn = document.getElementById('gen-btn');
+    const out = document.getElementById('ws-out');
+
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    out.style.display = 'block';
+    out.innerHTML = `<div class="loading"><div class="spinner"></div>Generating ${n} questions on ${subs}...<br><small style="color:#aaa;margin-top:8px;display:block">This takes 10-15 seconds</small></div>`;
+
+    const prompt = `You are an expert educator. Create a hard-level worksheet for Class 11-12 / Engineering students.
+Generate exactly ${n} questions from: ${subs}. Mix subjects if multiple selected.
+RESPOND ONLY WITH VALID JSON. NO markdown. NO explanation. Just the JSON object.
+Format: {"questions":[{"subject":"Mathematics","question":"full question","solution":"Step 1: ...\\nStep 2: ...\\nFinal Answer: ..."}]}
+Rules: Hard engineering-level questions with actual numbers. Numbered steps in solution. Final Answer at end.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const data = await res.json();
+      const raw = data.content?.find(b => b.type === 'text')?.text || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      const qs = parsed.questions;
+
+      const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      let html = `<div class="ws-header">
+        <div>
+          <div class="ws-title">${title}</div>
+          <div class="ws-meta">${qs.length} Questions &nbsp;|&nbsp; ${subs} &nbsp;|&nbsp; ${date} &nbsp;|&nbsp; Hard Level</div>
+        </div>
+        <div class="action-bar">
+          <button class="action-btn" onclick="showAll()">Show all</button>
+          <button class="action-btn" onclick="hideAll()">Hide all</button>
+          <button class="action-btn" onclick="generate()">Regenerate</button>
+          <button class="action-btn print-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>`;
+
+      qs.forEach((q, i) => {
+        html += `<div class="q-block">
+          <div class="q-header">
+            <div class="q-num">${i + 1}</div>
+            <span class="subject-tag">${q.subject}</span>
+          </div>
+          <div class="q-text">${q.question}</div>
+          <button class="sol-btn" onclick="toggleSol(${i})">Show solution</button>
+          <div id="sol-${i}" style="display:none">
+            <div class="sol-box">
+              <div class="sol-label">Step-by-step solution</div>
+              <div class="sol-text">${q.solution}</div>
+            </div>
+          </div>
+        </div>`;
+      });
+
+      out.innerHTML = html;
+
+    } catch (e) {
+      out.innerHTML = `<div class="error">Failed to generate. Check your API key or try again.<br><small>${e.message}</small></div>`;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Generate Worksheet';
+  }
+
+  function toggleSol(i) {
+    const box = document.getElementById('sol-' + i);
+    const btn = box.previousElementSibling;
+    const show = box.style.display === 'none';
+    box.style.display = show ? 'block' : 'none';
+    btn.textContent = show ? 'Hide solution' : 'Show solution';
+  }
+
+  function showAll() {
+    document.querySelectorAll('[id^="sol-"]').forEach(b => {
+      b.style.display = 'block';
+      if (b.previousElementSibling) b.previousElementSibling.textContent = 'Hide solution';
+    });
+  }
+
+  function hideAll() {
+    document.querySelectorAll('[id^="sol-"]').forEach(b => {
+      b.style.display = 'none';
+      if (b.previousElementSibling) b.previousElementSibling.textContent = 'Show solution';
+    });
+  }
+</script>
+</body>
+</html>
