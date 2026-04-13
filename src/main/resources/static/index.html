@@ -230,7 +230,12 @@ Rules: Hard engineering-level questions with actual numbers. Numbered steps in s
       });
       const raw = await res.text();  
       const clean = raw.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(clean);
+      let parsed;
+      try {
+        parsed = JSON.parse(clean);
+      } catch (e) {
+        throw new Error(clean); // show real backend error
+      }  
       const qs = parsed.questions;
 
       const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
