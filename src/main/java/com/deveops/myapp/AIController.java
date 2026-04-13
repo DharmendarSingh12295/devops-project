@@ -38,15 +38,23 @@ public class AIController {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = new HashMap<>();
-        body.put("model", "claude-3-sonnet-20240229");
+        body.put("model", "claude-3-5-sonnet-20240620");
         body.put("max_tokens", 1000);
 
-        List<Map<String, String>> messages = new ArrayList<>();
-        Map<String, String> msg = new HashMap<>();
+        List<Map<String, Object>> messages = new ArrayList<>();
+        Map<String, Object> msg = new HashMap<>();
         msg.put("role", "user");
-        msg.put("content", prompt);
-        messages.add(msg);
 
+        List<Map<String, String>> contentList = new ArrayList<>();
+        Map<String, String> contentMap = new HashMap<>();
+        contentMap.put("type", "text");
+        contentMap.put("text", prompt);
+
+        contentList.add(contentMap);
+        msg.put("content", contentList);
+
+        messages.add(msg);
+        
         body.put("messages", messages);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
