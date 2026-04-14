@@ -229,17 +229,23 @@ Rules: Hard engineering-level questions with actual numbers. Numbered steps in s
         body: JSON.stringify({ prompt: prompt })
       });
       const raw = await res.text();
-
       const data = JSON.parse(raw);
-      const text = data.choices[0].message.content;
 
-      const clean = text.replace(/```json|```/g, '').trim();
+      // get AI response text
+      let text = data.choices[0].message.content;
+
+      // 🔥 REMOVE markdown + extra text
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+      if (!jsonMatch) {
+        throw new Error(text); // show real error
+      }
 
       let parsed;
       try {
-        parsed = JSON.parse(clean);
+        parsed = JSON.parse(jsonMatch[0]);
       } catch (e) {
-      throw new Error(clean); // show backend error clearly
+        throw new Error(text);
       }
       const qs = parsed.questions;
 
