@@ -223,31 +223,35 @@ Rules: Hard engineering-level questions with actual numbers. Numbered steps in s
     try {
     const res = await fetch('/api/generate', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: prompt })
-      });
-      const raw = await res.text();
-      const data = JSON.parse(raw);
+    });
 
-      // get AI response text
-      let text = data.choices[0].message.content;
+    const raw = await res.text();
 
-      // 🔥 REMOVE markdown + extra text
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+    // Step 1: parse backend response
+    const data = JSON.parse(raw);
 
-      if (!jsonMatch) {
-        throw new Error(text); // show real error
-      }
+    // Step 2: extract AI text
+    let text = data.choices[0].message.content;
 
-      let parsed;
-      try {
-        parsed = JSON.parse(jsonMatch[0]);
-      } catch (e) {
+    // Step 3: REMOVE markdown completely
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    // Step 4: extract ONLY JSON part
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+
+    if (start === -1 || end === -1) {
         throw new Error(text);
-      }
-      const qs = parsed.questions;
+    }
+
+    const jsonString = text.substring(start, end + 1);
+
+    // Step 5: final parse
+    const parsed = JSON.parse(jsonString);
+
+    const qs = parsed.questions;
 
       const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
