@@ -69,4 +69,5 @@ public ResponseEntity<?> generate(@RequestBody Map<String, String> request) {
         return ResponseEntity.status(500).body("Backend Error: " + e.getMessage());
     }
 }
+
 }
