@@ -26,6 +26,11 @@ public class AIController {
 public ResponseEntity<?> generate(@RequestBody Map<String, String> request) {
 
     String apiKey = System.getenv("GROQ_API_KEY");
+
+    if (apiKey == null || apiKey.isEmpty()) {
+        return ResponseEntity.status(500).body("GROQ API KEY NOT SET");
+    }
+
     String prompt = request.get("prompt");
 
     String url = "https://api.groq.com/openai/v1/chat/completions";
@@ -38,6 +43,7 @@ public ResponseEntity<?> generate(@RequestBody Map<String, String> request) {
 
     Map<String, Object> body = new HashMap<>();
     body.put("model", "llama-3.1-8b-instant");
+    body.put("temperature", 0);
 
     List<Map<String, String>> messages = new ArrayList<>();
     Map<String, String> msg = new HashMap<>();
@@ -60,7 +66,7 @@ public ResponseEntity<?> generate(@RequestBody Map<String, String> request) {
         return ResponseEntity.ok(response.getBody());
 
     } catch (Exception e) {
-        return ResponseEntity.status(500).body(e.getMessage());
+        return ResponseEntity.status(500).body("Backend Error: " + e.getMessage());
     }
-} 
+}
 }

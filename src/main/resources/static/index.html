@@ -52,27 +52,12 @@
 
 async function generate() {
 
-  const n = document.getElementById('qcount').value;
-  const title = document.getElementById('wtitle').value || "Worksheet";
+  const n = Math.min(10, Math.max(3, parseInt(document.getElementById('qcount').value) || 5));
+  const title = document.getElementById('wtitle').value.trim() || "Worksheet";
   const out = document.getElementById('output');
 
   out.style.display = 'block';
-  out.innerHTML = "Generating...";
 
-  const prompt = `Generate ${n} engineering-level questions with solutions in JSON format:
-  {"questions":[{"subject":"Math","question":"...","solution":"..."}]}`;
-
-async function generate() {
-  const n = Math.min(10, Math.max(3, parseInt(document.getElementById('qcount').value) || 5));
-  const title = document.getElementById('wtitle').value.trim() || 'Worksheet';
-  const subs = "Mixed Subjects";
-
-  const btn = document.getElementById('gen-btn');
-  const out = document.getElementById('ws-out');
-
-  btn.disabled = true;
-  btn.textContent = 'Generating...';
-  out.style.display = 'block';
   out.innerHTML = "Generating...";
 
   const prompt = `Generate ${n} engineering-level questions with solutions in JSON format:
@@ -99,6 +84,7 @@ async function generate() {
 
     if (!text) throw new Error("Invalid API response");
 
+    // Clean response
     text = text.replace(/```json/g,'').replace(/```/g,'').trim();
 
     const start = text.indexOf('{');
@@ -123,14 +109,9 @@ async function generate() {
     out.innerHTML = html;
 
   } catch (e) {
-    out.innerHTML = `<div style="color:red">${e.message}</div>`;
+    out.innerHTML = `<div class="error">${e.message}</div>`;
   }
-
-  btn.disabled = false;
-  btn.textContent = 'Generate Worksheet';
 }
-}
-
 </script>
 
 </body>
