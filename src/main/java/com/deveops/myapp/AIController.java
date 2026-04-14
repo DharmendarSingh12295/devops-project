@@ -37,7 +37,7 @@ public ResponseEntity<?> generate(@RequestBody Map<String, String> request) {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     Map<String, Object> body = new HashMap<>();
-    body.put("model", "mixtral-8x7b-32768");
+    body.put("model", "llama-3.1-8b-instant");
 
     List<Map<String, String>> messages = new ArrayList<>();
     Map<String, String> msg = new HashMap<>();
