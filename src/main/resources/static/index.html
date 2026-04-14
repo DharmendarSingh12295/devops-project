@@ -228,14 +228,19 @@ Rules: Hard engineering-level questions with actual numbers. Numbered steps in s
         },
         body: JSON.stringify({ prompt: prompt })
       });
-      const raw = await res.text();  
-      const clean = raw.replace(/```json|```/g, '').trim();
+      const raw = await res.text();
+
+      const data = JSON.parse(raw);
+      const text = data.choices[0].message.content;
+
+      const clean = text.replace(/```json|```/g, '').trim();
+
       let parsed;
       try {
         parsed = JSON.parse(clean);
       } catch (e) {
-        throw new Error(clean); // show real backend error
-      }  
+      throw new Error(clean); // show backend error clearly
+      }
       const qs = parsed.questions;
 
       const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
