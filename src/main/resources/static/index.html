@@ -1,33 +1,64 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DevOps Worksheet Generator</title>
+  <title>Worksheet Generator</title>
 
   <style>
-    body { font-family: Arial; background:#f4f6f9; margin:0; }
-    .container { max-width:800px; margin:40px auto; }
+    body {
+      font-family: Arial;
+      background: #f4f6f9;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+    }
 
     .card {
-      background:white;
-      padding:20px;
-      border-radius:10px;
-      margin-bottom:20px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    .gen-btn {
-      width:100%;
-      padding:12px;
-      background:#1F4E79;
-      color:white;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
+    h2 {
+      color: #1F4E79;
     }
 
-    .error { color:red; text-align:center; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1F4E79;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .question {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .solution {
+      color: green;
+      margin-top: 5px;
+      white-space: pre-wrap;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -38,10 +69,10 @@
   <div class="card">
     <h2>Generate Worksheet</h2>
 
-    <input type="number" id="qcount" value="5" min="3" max="10"><br><br>
-    <input type="text" id="wtitle" placeholder="Worksheet Title"><br><br>
+    <input type="number" id="qcount" value="5" min="3" max="10">
+    <input type="text" id="wtitle" placeholder="Worksheet Title">
 
-    <button class="gen-btn" onclick="generate()">Generate</button>
+    <button onclick="generate()">Generate</button>
   </div>
 
   <div class="card" id="output" style="display:none"></div>
@@ -49,7 +80,6 @@
 </div>
 
 <script>
-
 async function generate() {
 
   const n = Math.min(10, Math.max(3, parseInt(document.getElementById('qcount').value) || 5));
@@ -57,7 +87,6 @@ async function generate() {
   const out = document.getElementById('output');
 
   out.style.display = 'block';
-
   out.innerHTML = "Generating...";
 
   const prompt = `Generate ${n} engineering-level questions with solutions in JSON format:
@@ -71,20 +100,12 @@ async function generate() {
     });
 
     const raw = await res.text();
-    console.log("RAW:", raw);
-
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      throw new Error(raw);
-    }
+    let data = JSON.parse(raw);
 
     let text = data.choices?.[0]?.message?.content;
 
     if (!text) throw new Error("Invalid API response");
 
-    // Clean response
     text = text.replace(/```json/g,'').replace(/```/g,'').trim();
 
     const start = text.indexOf('{');
@@ -94,14 +115,14 @@ async function generate() {
     const parsed = JSON.parse(jsonString);
     const qs = parsed.questions;
 
-    let html = `<h3>${title}</h3>`;
+    let html = `<h2>${title}</h2>`;
 
     qs.forEach((q, i) => {
       html += `
-        <div style="margin-bottom:15px">
+        <div class="question">
           <b>Q${i+1} (${q.subject})</b><br>
-          ${q.question}<br><br>
-          <i>${q.solution}</i>
+          ${q.question}
+          <div class="solution">${q.solution}</div>
         </div>
       `;
     });
