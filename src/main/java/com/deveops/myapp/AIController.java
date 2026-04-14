@@ -22,40 +22,29 @@ import org.springframework.web.client.RestTemplate;
 @CrossOrigin("*")
 public class AIController {
 
-   @PostMapping("/generate")
+@PostMapping("/generate")
 public ResponseEntity<?> generate(@RequestBody Map<String, String> request) {
 
-    String apiKey = System.getenv("ANTHROPIC_API_KEY");
+    String apiKey = System.getenv("GROQ_API_KEY");
     String prompt = request.get("prompt");
 
-    String url = "https://api.anthropic.com/v1/messages";
+    String url = "https://api.groq.com/openai/v1/chat/completions";
 
     RestTemplate restTemplate = new RestTemplate();
 
     HttpHeaders headers = new HttpHeaders();
-    headers.set("x-api-key", apiKey);
-    headers.set("anthropic-version", "2023-06-01");
+    headers.setBearerAuth(apiKey);
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     Map<String, Object> body = new HashMap<>();
-    body.put("model", "claude-3-haiku-20240307");  // ✅ stable model
-    body.put("max_tokens", 1000);
+    body.put("model", "llama3-8b-8192");  // fast & free
 
-    // ✅ CORRECT FORMAT
-    List<Map<String, Object>> messages = new ArrayList<>();
+    List<Map<String, String>> messages = new ArrayList<>();
+    Map<String, String> msg = new HashMap<>();
+    msg.put("role", "user");
+    msg.put("content", prompt);
+    messages.add(msg);
 
-    Map<String, Object> message = new HashMap<>();
-    message.put("role", "user");
-
-    List<Map<String, String>> content = new ArrayList<>();
-    Map<String, String> textObj = new HashMap<>();
-    textObj.put("type", "text");
-    textObj.put("text", prompt);
-
-    content.add(textObj);
-    message.put("content", content);
-
-    messages.add(message);
     body.put("messages", messages);
 
     HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
@@ -73,5 +62,5 @@ public ResponseEntity<?> generate(@RequestBody Map<String, String> request) {
     } catch (Exception e) {
         return ResponseEntity.status(500).body(e.getMessage());
     }
-}
+} 
 }
